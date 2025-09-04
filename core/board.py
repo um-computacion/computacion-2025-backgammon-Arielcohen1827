@@ -13,8 +13,9 @@ def mostrar_tablero():
     max_altura = 8  # altura visible
 
     def celda(contenido):
-        """Devuelve el contenido centrado en un ancho fijo de 3."""
         return f"{contenido:^3}"
+
+    output = []
 
     # Parte superior (13–24)
     for fila in range(max_altura, 0, -1):
@@ -26,7 +27,7 @@ def mostrar_tablero():
         for punto in range(19, 25):
             fichas = tablero.get(punto, [])
             linea += celda(fichas[fila-1] if len(fichas) >= fila else " ")
-        print(linea)
+        output.append(linea)
 
     # Numeración superior
     linea = " "
@@ -35,9 +36,9 @@ def mostrar_tablero():
     linea += "|"
     for punto in range(19, 25):
         linea += celda(punto)
-    print(linea)
+    output.append(linea)
 
-    print(" " + "-" * (3*12 + 1))
+    output.append(" " + "-" * (3*12 + 1))
 
     # Numeración inferior
     linea = " "
@@ -46,7 +47,7 @@ def mostrar_tablero():
     linea += "|"
     for punto in range(6, 0, -1):
         linea += celda(punto)
-    print(linea)
+    output.append(linea)
 
     # Parte inferior (12–1)
     for fila in range(1, max_altura + 1):
@@ -58,8 +59,12 @@ def mostrar_tablero():
         for punto in range(6, 0, -1):
             fichas = tablero.get(punto, [])
             linea += celda(fichas[fila-1] if len(fichas) >= fila else " ")
-        print(linea)
+        output.append(linea)
+
+    # ✅ Devuelve el tablero como string
+    return "\n".join(output)
 
 
 if __name__ == "__main__":
-    mostrar_tablero()
+    # ✅ Si corrés este archivo directamente, imprime el tablero
+    print(mostrar_tablero())
