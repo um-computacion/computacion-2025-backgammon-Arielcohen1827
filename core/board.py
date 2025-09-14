@@ -1,4 +1,4 @@
-class tablero:
+class Tablero:
     def __init__(self):
         # Representa el tablero como dict: clave = punto, valor = lista de fichas
         self.tablero = {
@@ -77,7 +77,7 @@ class tablero:
 
 
 if __name__ == "__main__":
-    juego = tablero()
+    juego = Tablero()
     print(juego.mostrar())
 
     print("\n🔹 Moviendo ficha de 13 a 11...\n")
