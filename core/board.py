@@ -66,13 +66,22 @@ class Tablero:
         return "\n".join(output)
 
     def mover_ficha(self, origen, destino):
-        """Mueve una ficha de un punto a otro (si existe)."""
+        """Mueve una ficha de un punto a otro, si la jugada es válida."""
         if origen not in self.tablero or len(self.tablero[origen]) == 0:
             print(f"No hay fichas en el punto {origen}")
             return False
 
-        ficha = self.tablero[origen].pop()  # saca una ficha
-        self.tablero.setdefault(destino, []).append(ficha)  # la pone en destino
+        ficha = self.tablero[origen][-1]  # miramos la ficha a mover ("X" o "O")
+        fichas_destino = self.tablero.get(destino, [])
+
+        # Condición: si hay 2 o más fichas del contrario, no se puede mover
+        if len(fichas_destino) >= 2 and fichas_destino[0] != ficha:
+            print(f"❌ No puedes mover al punto {destino}: está bloqueado por la fichas del contrario.")
+            return False
+
+        # Si es válido, movemos la ficha
+        self.tablero[origen].pop()
+        self.tablero.setdefault(destino, []).append(ficha)
         return True
 
 
@@ -80,7 +89,10 @@ if __name__ == "__main__":
     juego = Tablero()
     print(juego.mostrar())
 
+    print("\n🔹 Intentando mover ficha de 13 a 19 (ocupado por 5 'X')...\n")
+    juego.mover_ficha(13, 19)  # debería bloquearse
+
     print("\n🔹 Moviendo ficha de 13 a 11...\n")
-    juego.mover_ficha(13, 11)
+    juego.mover_ficha(13, 11)  # debería funcionar
 
     print(juego.mostrar())
