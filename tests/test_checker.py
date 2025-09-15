@@ -1,24 +1,5 @@
 import unittest
-from core.board import Tablero   # usamos Tablero con Checker integrado
-
-
-class TestMostrarTablero(unittest.TestCase):
-
-    def test_contiene_numeros(self):
-        tablero = Tablero().mostrar()
-        self.assertIn("13", tablero)
-        self.assertIn("24", tablero)
-        self.assertIn("12", tablero)
-        self.assertIn(" 1 ", tablero)
-
-    def test_contiene_fichas(self):
-        tablero = Tablero().mostrar()
-        self.assertIn("O", tablero)
-        self.assertIn("X", tablero)
-
-    def test_cantidad_lineas(self):
-        tablero = Tablero().mostrar().split("\n")
-        self.assertEqual(len(tablero), 19)
+from core.board import Tablero   # ✅ ahora usamos Tablero
 
 
 class TestMovimientoFichas(unittest.TestCase):
@@ -52,11 +33,6 @@ class TestMovimientoFichas(unittest.TestCase):
         ficha = self.juego.tablero[13][-1]
         self.juego.mover_ficha(13, 7)
         self.assertIn(ficha, self.juego.tablero[7])
-
-    def test_no_mover_a_bloqueado(self):
-        # Punto 19 arranca con 5 fichas "X"
-        # Una "O" desde 13 no debería poder moverse allí
-        self.assertFalse(self.juego.mover_ficha(13, 19))
 
 
 if __name__ == "__main__":

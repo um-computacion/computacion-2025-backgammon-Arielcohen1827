@@ -1,6 +1,7 @@
+from core.checker import Checker
+
 class Tablero:
     def __init__(self):
-        # Representa el tablero como dict: clave = punto, valor = lista de fichas
         self.tablero = {
             24: ["O"] * 2,
             13: ["O"] * 5,
@@ -66,20 +67,20 @@ class Tablero:
         return "\n".join(output)
 
     def mover_ficha(self, origen, destino):
-        """Mueve una ficha de un punto a otro, si la jugada es válida."""
+        """Mueve una ficha si el Checker lo permite."""
         if origen not in self.tablero or len(self.tablero[origen]) == 0:
             print(f"No hay fichas en el punto {origen}")
             return False
 
-        ficha = self.tablero[origen][-1]  # miramos la ficha a mover ("X" o "O")
+        ficha = self.tablero[origen][-1]
         fichas_destino = self.tablero.get(destino, [])
 
-        # Condición: si hay 2 o más fichas del contrario, no se puede mover
-        if len(fichas_destino) >= 2 and fichas_destino[0] != ficha:
-            print(f"❌ No puedes mover al punto {destino}: está bloqueado por la fichas del contrario.")
+        # Usamos Checker para validar
+        if not Checker.movimiento_valido(ficha, fichas_destino):
+            print(f"❌ No puedes mover al punto {destino}: bloqueado por el rival.")
             return False
 
-        # Si es válido, movemos la ficha
+        # Movimiento válido
         self.tablero[origen].pop()
         self.tablero.setdefault(destino, []).append(ficha)
         return True
@@ -89,10 +90,10 @@ if __name__ == "__main__":
     juego = Tablero()
     print(juego.mostrar())
 
-    print("\n🔹 Intentando mover ficha de 13 a 19 (ocupado por 5 'X')...\n")
-    juego.mover_ficha(13, 19)  # debería bloquearse
+    print("\n🔹 Intentando mover ficha de 13 a 8 (ocupado por 3 'O')...\n")
+    juego.mover_ficha(13, 8)  # debería bloquearse
+    print(juego.mostrar())
 
     print("\n🔹 Moviendo ficha de 13 a 11...\n")
     juego.mover_ficha(13, 11)  # debería funcionar
-
     print(juego.mostrar())
