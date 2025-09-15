@@ -74,6 +74,14 @@ class Tablero:
 
         ficha = self.tablero[origen][-1]
         fichas_destino = self.tablero.get(destino, [])
+        # 🔹 Validar dirección de movimiento
+        if ficha == "O" and destino >= origen:
+            print(f"❌ Ficha 'O' solo puede bajar (de {origen} a menor número).")
+            return False
+        if ficha == "X" and destino <= origen:
+            print(f"❌ Ficha 'X' solo puede subir (de {origen} a mayor número).")
+            return False
+
 
         # Usamos Checker para validar
         if not Checker.movimiento_valido(ficha, fichas_destino):

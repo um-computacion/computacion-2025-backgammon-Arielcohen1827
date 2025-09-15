@@ -58,6 +58,37 @@ class TestMovimientoFichas(unittest.TestCase):
         # Una "O" desde 13 no debería poder moverse allí
         self.assertFalse(self.juego.mover_ficha(13, 19))
 
+class TestMovimientoDireccion(unittest.TestCase):
+
+    def setUp(self):
+        self.juego = Tablero()
+
+    def test_o_no_puede_subir(self):
+        # Ficha "O" en 13 intenta ir a 15 (subir → inválido)
+        self.assertFalse(self.juego.mover_ficha(13, 15))
+        # Debe seguir habiendo 5 fichas en 13
+        self.assertEqual(len(self.juego.tablero[13]), 5)
+        self.assertNotIn(15, self.juego.tablero)
+
+    def test_o_puede_bajar(self):
+        # Ficha "O" en 13 baja a 11 (válido)
+        self.assertTrue(self.juego.mover_ficha(13, 11))
+        self.assertEqual(len(self.juego.tablero[13]), 4)
+        self.assertEqual(len(self.juego.tablero[11]), 1)
+
+    def test_x_no_puede_bajar(self):
+        # Ficha "X" en 1 intenta ir a 0 (bajar → inválido)
+        self.assertFalse(self.juego.mover_ficha(1, 0))
+        self.assertEqual(len(self.juego.tablero[1]), 2)
+        self.assertNotIn(0, self.juego.tablero)
+
+    def test_x_puede_subir(self):
+        # Ficha "X" en 1 sube a 3 (válido)
+        self.assertTrue(self.juego.mover_ficha(1, 3))
+        self.assertEqual(len(self.juego.tablero[1]), 1)
+        self.assertEqual(len(self.juego.tablero[3]), 1)
+
+
 
 if __name__ == "__main__":
     unittest.main()
