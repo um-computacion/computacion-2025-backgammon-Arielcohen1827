@@ -88,6 +88,43 @@ class TestMovimientoDireccion(unittest.TestCase):
         self.assertEqual(len(self.juego.tablero[1]), 1)
         self.assertEqual(len(self.juego.tablero[3]), 1)
 
+class TestComerFicha(unittest.TestCase):
+
+    def setUp(self):
+        self.juego = Tablero()
+
+    def test_o_come_a_x(self):
+        # Preparamos un destino con una sola "X"
+        self.juego.tablero[5] = ["X"]
+        # Movemos "O" desde 6 a 5 (O baja → válido y debería comer a X)
+        resultado = self.juego.mover_ficha(6, 5)
+        self.assertTrue(resultado)
+        # El punto 5 ahora debe tener solo una "O"
+        self.assertEqual(self.juego.tablero[5], ["O"])
+        # La "X" debe estar en la barra
+        self.assertEqual(self.juego.bar["X"], ["X"])
+
+    def test_x_come_a_o(self):
+        # Preparamos un destino con una sola "O"
+        self.juego.tablero[14] = ["O"]
+        # Movemos "X" desde 12 a 14 (X sube → válido y debería comer a O)
+        resultado = self.juego.mover_ficha(12, 14)
+        self.assertTrue(resultado)
+        # El punto 14 ahora debe tener solo una "X"
+        self.assertEqual(self.juego.tablero[14], ["X"])
+        # La "O" debe estar en la barra
+        self.assertEqual(self.juego.bar["O"], ["O"])
+
+    def test_no_comer_si_hay_mas_de_una(self):
+        # Preparamos un destino con 2 "X" (bloqueado para O)
+        self.juego.tablero[5] = ["X", "X"]
+        resultado = self.juego.mover_ficha(6, 5)
+        # Movimiento inválido (bloqueado), no se mueve ni se come
+        self.assertFalse(resultado)
+        self.assertEqual(self.juego.tablero[5], ["X", "X"])
+        self.assertEqual(self.juego.bar["X"], [])
+
+
 
 
 if __name__ == "__main__":

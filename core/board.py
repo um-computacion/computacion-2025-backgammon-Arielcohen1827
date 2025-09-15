@@ -13,7 +13,8 @@ class Tablero:
             19: ["X"] * 5,
         }
         self.max_altura = 8
-
+     # 🔹 Agregamos la barra para fichas comidas
+        self.bar = {"O": [], "X": []}
     def celda(self, contenido):
         return f"{contenido:^3}"
 
@@ -87,6 +88,13 @@ class Tablero:
         if not Checker.movimiento_valido(ficha, fichas_destino):
             print(f"❌ No puedes mover al punto {destino}: bloqueado por el rival.")
             return False
+        
+           # 🔹 Si hay una sola ficha rival → se come
+        if len(fichas_destino) == 1 and fichas_destino[0] != ficha:
+            rival = fichas_destino.pop()      # quitar ficha rival
+            self.bar[rival].append(rival)     # enviar a la barra
+            print(f"🍴 Ficha '{rival}' comida en el punto {destino} y enviada a la barra.")
+
 
         # Movimiento válido
         self.tablero[origen].pop()
