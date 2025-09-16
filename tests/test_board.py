@@ -149,7 +149,65 @@ class TestMovimientoConBarra(unittest.TestCase):
         self.assertEqual(len(self.juego.tablero[1]), 2)
         self.assertNotIn(3, self.juego.tablero)
 
+class TestBearingOff(unittest.TestCase):
 
+    def setUp(self):
+        self.juego = Tablero()
+
+    def test_o_no_puede_retirar_si_no_todas_en_cuadrante(self):
+        # Intentamos retirar una "O" desde el punto 13 → no debería poder
+        resultado = self.juego.mover_ficha(13, 0)
+        self.assertFalse(resultado)
+        self.assertEqual(self.juego.off["O"], [])
+
+    def test_x_no_puede_retirar_si_no_todas_en_cuadrante(self):
+        # Intentamos retirar una "X" desde el punto 12 → no debería poder
+        resultado = self.juego.mover_ficha(12, 25)
+        self.assertFalse(resultado)
+        self.assertEqual(self.juego.off["X"], [])
+
+    def test_o_puede_retirar_cuando_todas_en_cuadrante(self):
+        # Preparamos el tablero con todas las fichas O en [1–6]
+        self.juego.tablero = {
+            1: ["O"] * 2,
+            2: ["O"] * 3,
+            3: ["O"] * 5,
+            6: ["O"] * 5,
+            19: ["X"] * 5,
+            24: ["X"] * 10,
+        }
+        # Retiramos una ficha O desde el punto 6
+        resultado = self.juego.mover_ficha(6, 0)
+        self.assertTrue(resultado)
+        self.assertEqual(self.juego.off["O"], ["O"])
+        self.assertEqual(len(self.juego.tablero[6]), 4)
+
+    def test_x_puede_retirar_cuando_todas_en_cuadrante(self):
+        # Preparamos el tablero con todas las fichas X en [19–24]
+        self.juego.tablero = {
+            19: ["X"] * 5,
+            20: ["X"] * 3,
+            24: ["X"] * 7,
+            6: ["O"] * 10,
+        }
+        # Retiramos una ficha X desde el punto 24
+        resultado = self.juego.mover_ficha(24, 25)
+        self.assertTrue(resultado)
+        self.assertEqual(self.juego.off["X"], ["X"])
+        self.assertEqual(len(self.juego.tablero[24]), 6)
+
+    def test_varias_fichas_retiradas(self):
+        # Preparamos todas las fichas O en [1–6]
+        self.juego.tablero = {
+            1: ["O"] * 15,
+            19: ["X"] * 15,
+        }
+        # Retiramos 3 fichas
+        self.juego.mover_ficha(1, 0)
+        self.juego.mover_ficha(1, 0)
+        self.juego.mover_ficha(1, 0)
+        self.assertEqual(len(self.juego.off["O"]), 3)
+        self.assertEqual(len(self.juego.tablero[1]), 12)
 
 if __name__ == "__main__":
     unittest.main()

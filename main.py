@@ -2,55 +2,40 @@ from core.board import Tablero
 
 def main():
     juego = Tablero()
-    print("🎲 Estado inicial del tablero:\n")
+    print("🎲 Estado inicial del tablero:")
     print(juego.mostrar())
 
-    # Ejemplo 1: mover ficha O correctamente
-    print("\n🔹 Movimiento válido: ficha O de 13 a 11")
+    # 🔹 Intento inválido: mover a un punto bloqueado
+    print("\n🔹 Intentando mover ficha de 13 a 8 (ocupado por 3 'O')...\n")
+    juego.mover_ficha(13, 8)
+    print(juego.mostrar())
+
+    # 🔹 Movimiento válido
+    print("\n🔹 Moviendo ficha de 13 a 11...\n")
     juego.mover_ficha(13, 11)
     print(juego.mostrar())
 
-    # Ejemplo 2: mover ficha X correctamente
-    print("\n🔹 Movimiento válido: ficha X de 1 a 3")
-    juego.mover_ficha(1, 3)
+    # 🔹 Comer ficha rival (si hay 1 sola del otro color en destino)
+    print("\n🔹 Simulando comer ficha en punto 12...\n")
+    juego.tablero[12] = ["X"]  # dejamos solo una X
+    juego.tablero[11] = ["O"]  # movemos O desde 11
+    juego.mover_ficha(11, 12)
+    print(juego.mostrar())
+    print("Barra:", juego.bar)
+
+    # 🔹 Intentar mover cuando hay fichas en la barra
+    print("\n🔹 Intentando mover otra ficha 'X' mientras tiene piezas en la barra...\n")
+    juego.mover_ficha(12, 13)  # debería bloquearse porque 'X' tiene piezas en barra
     print(juego.mostrar())
 
-    # Ejemplo 3: intento inválido (O no puede subir de 11 a 13)
-    print("\n🔹 Movimiento inválido: ficha O intentando subir de 11 a 13")
-    juego.mover_ficha(11, 13)
+    # 🔹 Retirar fichas (bearing off)
+    print("\n🔹 Probando retiro de fichas 'O'...\n")
+    # Forzamos que todas las O estén en el cuadrante final
+    juego.tablero = {p: [] for p in range(1, 25)}
+    juego.tablero[1] = ["O", "O", "O"]
+    juego.mover_ficha(1, 0)  # retirar una ficha
     print(juego.mostrar())
-
-    # Ejemplo 4: intento inválido (X no puede bajar de 3 a 2)
-    print("\n🔹 Movimiento inválido: ficha X intentando bajar de 3 a 2")
-    juego.mover_ficha(3, 2)
-    print(juego.mostrar())
-
-    # Ejemplo 5: movimiento bloqueado (O de 11 a 19, ocupado por 5 X)
-    print("\n🔹 Movimiento bloqueado: O intentando entrar en punto 19 con 5 X")
-    juego.mover_ficha(11, 19)
-    print(juego.mostrar())
-
-    # Ejemplo 6: comer ficha (preparamos punto 5 con 1 X, O baja de 6 a 5)
-    print("\n🔹 Movimiento con captura: O de 6 a 5 (come a X)")
-    juego.tablero[5] = ["X"]
-    juego.mover_ficha(6, 5)
-    print(juego.mostrar())
-    print("📦 Barra actual:", juego.bar)
-
-    # Ejemplo 7: mover varias veces (O de 13→7 en 2 pasos)
-    print("\n🔹 Movimiento en dos pasos: O de 13 a 7 (13→11→7)")
-    juego.mover_ficha(13, 11)
-    juego.mover_ficha(11, 7)
-    print(juego.mostrar())
-
-    # Ejemplo 8: intentar mover cuando hay fichas en la barra
-    print("\n🔹 Movimiento inválido: O intenta mover otra ficha mientras tiene piezas en la barra")
-    # Forzamos a que O tenga una ficha en la barra
-    juego.bar["O"].append("O")
-    # Intentamos mover otra ficha O desde 13 a 11
-    juego.mover_ficha(13, 11)
-    print(juego.mostrar())
-    print("📦 Barra actual:", juego.bar)
+    print("Fichas retiradas (off):", juego.off)
 
 if __name__ == "__main__":
     main()
