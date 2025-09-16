@@ -13,8 +13,12 @@ class Tablero:
             19: ["X"] * 5,
         }
         self.max_altura = 8
-     # 🔹 Agregamos la barra para fichas comidas
+        # 🔹 Agregamos la barra para fichas comidas
         self.bar = {"O": [], "X": []}
+
+        # 🔹 Fichas retiradas (bearing off)
+        self.off = {"O": [], "X": []}
+
     def celda(self, contenido):
         return f"{contenido:^3}"
 
@@ -67,6 +71,20 @@ class Tablero:
 
         return "\n".join(output)
 
+    def todas_en_cuadrante_final(self, ficha):
+        """Devuelve True si todas las fichas del jugador están en su cuadrante final."""
+        if ficha == "O":
+            # fichas O deben estar en puntos 1–6
+            for punto, fichas in self.tablero.items():
+                if "O" in fichas and punto > 6:
+                    return False
+        else:  # ficha == "X"
+            # fichas X deben estar en puntos 19–24
+            for punto, fichas in self.tablero.items():
+                if "X" in fichas and punto < 19:
+                    return False
+        return True
+    
     def mover_ficha(self, origen, destino):
         """Mueve una ficha si el Checker lo permite."""
         if origen not in self.tablero or len(self.tablero[origen]) == 0:
@@ -75,11 +93,34 @@ class Tablero:
 
         ficha = self.tablero[origen][-1]
         fichas_destino = self.tablero.get(destino, [])
-        
+
          # 🔹 Nueva validación: si hay fichas capturadas, deben reintegrarse primero
         if self.bar[ficha]:
             print(f"❌ No puedes mover otras fichas '{ficha}' mientras tengas piezas en la barra.")
             return False
+
+        fichas_destino = self.tablero.get(destino, [])
+
+         # 🔹 Caso especial: retirar fichas (bearing off)
+        if ficha == "O" and destino == 0:
+            if self.todas_en_cuadrante_final("O"):
+                self.tablero[origen].pop()
+                self.off["O"].append("O")
+                print(f"✅ Ficha 'O' retirada del tablero.")
+                return True
+            else:
+                print("❌ No puedes retirar fichas 'O' todavía (no todas están en el cuadrante final).")
+                return False
+
+        if ficha == "X" and destino == 25:
+            if self.todas_en_cuadrante_final("X"):
+                self.tablero[origen].pop()
+                self.off["X"].append("X")
+                print(f"✅ Ficha 'X' retirada del tablero.")
+                return True
+            else:
+                print("❌ No puedes retirar fichas 'X' todavía (no todas están en el cuadrante final).")
+                return False
 
         fichas_destino = self.tablero.get(destino, [])
 
