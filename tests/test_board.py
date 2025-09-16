@@ -123,7 +123,31 @@ class TestComerFicha(unittest.TestCase):
         self.assertFalse(resultado)
         self.assertEqual(self.juego.tablero[5], ["X", "X"])
         self.assertEqual(self.juego.bar["X"], [])
+        
+class TestMovimientoConBarra(unittest.TestCase):
 
+    def setUp(self):
+        self.juego = Tablero()
+
+    def test_o_no_puede_mover_si_tiene_en_barra(self):
+        # Forzamos a que O tenga una ficha en la barra
+        self.juego.bar["O"].append("O")
+        # Intentamos mover otra ficha O desde 13 a 11
+        resultado = self.juego.mover_ficha(13, 11)
+        self.assertFalse(resultado)
+        # El tablero no debería cambiar
+        self.assertEqual(len(self.juego.tablero[13]), 5)
+        self.assertNotIn(11, self.juego.tablero)
+
+    def test_x_no_puede_mover_si_tiene_en_barra(self):
+        # Forzamos a que X tenga una ficha en la barra
+        self.juego.bar["X"].append("X")
+        # Intentamos mover otra ficha X desde 1 a 3
+        resultado = self.juego.mover_ficha(1, 3)
+        self.assertFalse(resultado)
+        # El tablero no debería cambiar
+        self.assertEqual(len(self.juego.tablero[1]), 2)
+        self.assertNotIn(3, self.juego.tablero)
 
 
 

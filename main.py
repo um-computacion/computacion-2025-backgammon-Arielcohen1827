@@ -43,5 +43,14 @@ def main():
     juego.mover_ficha(11, 7)
     print(juego.mostrar())
 
+    # Ejemplo 8: intentar mover cuando hay fichas en la barra
+    print("\n🔹 Movimiento inválido: O intenta mover otra ficha mientras tiene piezas en la barra")
+    # Forzamos a que O tenga una ficha en la barra
+    juego.bar["O"].append("O")
+    # Intentamos mover otra ficha O desde 13 a 11
+    juego.mover_ficha(13, 11)
+    print(juego.mostrar())
+    print("📦 Barra actual:", juego.bar)
+
 if __name__ == "__main__":
     main()

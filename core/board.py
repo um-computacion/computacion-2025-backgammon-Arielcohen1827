@@ -75,6 +75,14 @@ class Tablero:
 
         ficha = self.tablero[origen][-1]
         fichas_destino = self.tablero.get(destino, [])
+        
+         # 🔹 Nueva validación: si hay fichas capturadas, deben reintegrarse primero
+        if self.bar[ficha]:
+            print(f"❌ No puedes mover otras fichas '{ficha}' mientras tengas piezas en la barra.")
+            return False
+
+        fichas_destino = self.tablero.get(destino, [])
+
         # 🔹 Validar dirección de movimiento
         if ficha == "O" and destino >= origen:
             print(f"❌ Ficha 'O' solo puede bajar (de {origen} a menor número).")
