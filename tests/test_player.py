@@ -1,46 +1,66 @@
 # tests/test_player.py
 
 import unittest
+from unittest.mock import patch
 from core.player import Player
 
-class TestPlayer(unittest.TestCase):
+class TestJugador(unittest.TestCase):
 
     def setUp(self):
-        """Se ejecuta antes de cada test."""
-        self.player_x = Player("Ariel", "X")
-        self.player_o = Player("CPU", "O")
+        """Se ejecuta antes de cada prueba."""
+        self.jugador_x = Player("Ariel", "X")
+        self.jugador_o = Player("CPU", "O")
 
-    def test_get_name(self):
-        self.assertEqual(self.player_x.get_name(), "Ariel")
-        self.assertEqual(self.player_o.get_name(), "CPU")
+    def test_obtener_nombre(self):
+        self.assertEqual(self.jugador_x.get_name(), "Ariel")
+        self.assertEqual(self.jugador_o.get_name(), "CPU")
 
-    def test_get_ficha(self):
-        self.assertEqual(self.player_x.get_ficha(), "X")
-        self.assertEqual(self.player_o.get_ficha(), "O")
+    def test_obtener_ficha(self):
+        self.assertEqual(self.jugador_x.get_ficha(), "X")
+        self.assertEqual(self.jugador_o.get_ficha(), "O")
 
-    def test_roll_dice_returns_two_values(self):
-        rolls = self.player_x.roll_dice()
-        self.assertEqual(len(rolls), 2)
-        self.assertTrue(1 <= rolls[0] <= 6)
-        self.assertTrue(1 <= rolls[1] <= 6)
+    def test_tirar_dados_devuelve_dos_valores(self):
+        tirada = self.jugador_x.roll_dice()
+        self.assertEqual(len(tirada), 2)
+        self.assertTrue(1 <= tirada[0] <= 6)
+        self.assertTrue(1 <= tirada[1] <= 6)
 
-    def test_get_last_roll_matches_roll_dice(self):
-        rolls = self.player_x.roll_dice()
-        last_rolls = self.player_x.get_last_roll()
-        self.assertEqual(rolls, last_rolls)
+    def test_ultima_tirada_coincide_con_roll_dice(self):
+        tirada = self.jugador_x.roll_dice()
+        ultima_tirada = self.jugador_x.get_last_roll()
+        self.assertEqual(tirada, ultima_tirada)
 
-    def test_has_double_true_when_both_dice_same(self):
-        # Forzamos los valores manualmente para simular un doble
-        self.player_x._Player__dice__.last_rolls = [3, 3]
-        self.assertTrue(self.player_x.has_double())
+    def test_es_doble_cuando_tirada_controlada(self):
+        """
+        Simulamos una tirada controlada que devuelve un doble (5,5)
+        parcheando Dice.roll para que sea determinista.
+        """
+        def fake_roll(self):
+            self.last_rolls = [5, 5]
+            return self.last_rolls
 
-    def test_has_double_false_when_dice_different(self):
-        self.player_x._Player__dice__.last_rolls = [2, 5]
-        self.assertFalse(self.player_x.has_double())
+        with patch('core.dice.Dice.roll', fake_roll):
+            tirada = self.jugador_x.roll_dice()
+            self.assertEqual(tirada, [5, 5])
+            self.assertTrue(self.jugador_x.has_double())
 
-    def test_str_representation(self):
-        self.assertEqual(str(self.player_x), "Jugador Ariel (X)")
-        self.assertEqual(str(self.player_o), "Jugador CPU (O)")
+    def test_no_es_doble_cuando_tirada_controlada(self):
+        """
+        Simulamos una tirada controlada que no es doble (2,6)
+        parcheando Dice.roll para que sea determinista.
+        """
+        def fake_roll(self):
+            self.last_rolls = [2, 6]
+            return self.last_rolls
+
+        with patch('core.dice.Dice.roll', fake_roll):
+            tirada = self.jugador_x.roll_dice()
+            self.assertEqual(tirada, [2, 6])
+            self.assertFalse(self.jugador_x.has_double())
+
+    def test_representacion_texto(self):
+        self.assertEqual(str(self.jugador_x), "Jugador Ariel (X)")
+        self.assertEqual(str(self.jugador_o), "Jugador CPU (O)")
 
 
 if __name__ == "__main__":
