@@ -1,5 +1,3 @@
-from core.checker import Checker
-
 class Tablero:
     def __init__(self):
         self.tablero = {
@@ -85,8 +83,18 @@ class Tablero:
                     return False
         return True
     
+    def movimiento_valido(self, ficha, fichas_destino):
+        """
+        Regla básica:
+        - Si el destino tiene 2 o más fichas rivales → movimiento inválido.
+        - En otro caso → válido.
+        """
+        if len(fichas_destino) >= 2 and all(f != ficha for f in fichas_destino):
+            return False
+        return True
+
     def mover_ficha(self, origen, destino):
-        """Mueve una ficha si el Checker lo permite."""
+        """Mueve una ficha aplicando reglas de backgammon."""
         if origen not in self.tablero or len(self.tablero[origen]) == 0:
             print(f"No hay fichas en el punto {origen}")
             return False
@@ -94,14 +102,12 @@ class Tablero:
         ficha = self.tablero[origen][-1]
         fichas_destino = self.tablero.get(destino, [])
 
-         # 🔹 Nueva validación: si hay fichas capturadas, deben reintegrarse primero
+        # 🔹 Validación: si hay fichas capturadas, deben reintegrarse primero
         if self.bar[ficha]:
             print(f"❌ No puedes mover otras fichas '{ficha}' mientras tengas piezas en la barra.")
             return False
 
-        fichas_destino = self.tablero.get(destino, [])
-
-         # 🔹 Caso especial: retirar fichas (bearing off)
+        # 🔹 Caso especial: retirar fichas 
         if ficha == "O" and destino == 0:
             if self.todas_en_cuadrante_final("O"):
                 self.tablero[origen].pop()
@@ -122,8 +128,6 @@ class Tablero:
                 print("❌ No puedes retirar fichas 'X' todavía (no todas están en el cuadrante final).")
                 return False
 
-        fichas_destino = self.tablero.get(destino, [])
-
         # 🔹 Validar dirección de movimiento
         if ficha == "O" and destino >= origen:
             print(f"❌ Ficha 'O' solo puede bajar (de {origen} a menor número).")
@@ -132,20 +136,18 @@ class Tablero:
             print(f"❌ Ficha 'X' solo puede subir (de {origen} a mayor número).")
             return False
 
-
-        # Usamos Checker para validar
-        if not Checker.movimiento_valido(ficha, fichas_destino):
+        # 🔹 Validar con las reglas 
+        if not self.movimiento_valido(ficha, fichas_destino):
             print(f"❌ No puedes mover al punto {destino}: bloqueado por el rival.")
             return False
-        
-           # 🔹 Si hay una sola ficha rival → se come
+
+        # 🔹 Si hay una sola ficha rival → se come
         if len(fichas_destino) == 1 and fichas_destino[0] != ficha:
             rival = fichas_destino.pop()      # quitar ficha rival
             self.bar[rival].append(rival)     # enviar a la barra
             print(f"🍴 Ficha '{rival}' comida en el punto {destino} y enviada a la barra.")
 
-
-        # Movimiento válido
+        # 🔹 Movimiento válido
         self.tablero[origen].pop()
         self.tablero.setdefault(destino, []).append(ficha)
         return True
