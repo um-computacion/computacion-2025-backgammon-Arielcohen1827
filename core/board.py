@@ -153,14 +153,3 @@ class Tablero:
         return True
 
 
-if __name__ == "__main__":
-    juego = Tablero()
-    print(juego.mostrar())
-
-    print("\n🔹 Intentando mover ficha de 13 a 8 (ocupado por 3 'O')...\n")
-    juego.mover_ficha(13, 8)  # debería bloquearse
-    print(juego.mostrar())
-
-    print("\n🔹 Moviendo ficha de 13 a 11...\n")
-    juego.mover_ficha(13, 11)  # debería funcionar
-    print(juego.mostrar())

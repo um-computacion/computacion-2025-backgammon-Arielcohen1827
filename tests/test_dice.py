@@ -24,5 +24,11 @@ class TestDice(unittest.TestCase):
         self.dice.last_rolls = [5, 6]  # Simulamos no un doble
         self.assertFalse(self.dice.is_double())
 
+    def test_init_last_rolls_none(self):
+        """Al inicializar, los valores deben ser [None, None]."""
+        self.assertEqual(self.dice.last_rolls, [None, None])
+
+
+
 if __name__ == '__main__':
     unittest.main()

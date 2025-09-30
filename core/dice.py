@@ -22,12 +22,3 @@ class Dice:
         return self.last_rolls
     
 
-if __name__ == '__main__':
-    dice = Dice()
-    rolls = dice.roll()
-    print(f"Tiradas: {rolls[0]} y {rolls[1]}")
-    
-    if dice.is_double():
-        print("¡Es un doble!")
-    else:
-        print("No es un doble.")
