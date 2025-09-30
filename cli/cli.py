@@ -22,11 +22,25 @@ def main():
     print("\nEstado inicial del tablero:")
     print(tablero.mostrar())
 
-    # Ejemplo de tirada
-    tirada = jugador_x.roll_dice()
-    print(f"\n{jugador_x.get_name()} tira los dados: {tirada}")
-    if jugador_x.has_double():
-        print("¡Sacó dobles!")
+    # Sorteo inicial: ambos tiran dados hasta que uno saque mayor suma
+    while True:
+        tirada_x = jugador_x.roll_dice()
+        tirada_o = jugador_o.roll_dice()
+        suma_x = sum(tirada_x)
+        suma_o = sum(tirada_o)
+
+        print("\nTirada inicial:")
+        print(f" - {jugador_x.get_name()} ({jugador_x.get_ficha()}): {tirada_x} -> suma {suma_x}")
+        print(f" - {jugador_o.get_name()} ({jugador_o.get_ficha()}): {tirada_o} -> suma {suma_o}")
+
+        if suma_x > suma_o:
+            print(f"\n{jugador_x.get_name()} comienza la partida.")
+            break
+        elif suma_o > suma_x:
+            print(f"\n{jugador_o.get_name()} comienza la partida.")
+            break
+        else:
+            print("Empate, se repite la tirada...")
 
 if __name__ == "__main__":
     main()
