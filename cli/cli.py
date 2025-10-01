@@ -1,4 +1,3 @@
-# cli.py
 from core.board import Tablero
 from core.player import Player
 
@@ -9,6 +8,7 @@ class Interfaz:
         self.jugador_x = None
         self.jugador_o = None
 
+    # Paso 1: crear jugadores y tablero
     def pedir_nombres(self):
         nombre_x = input("Nombre del jugador X (fichas negras): ") or "Jugador X"
         nombre_o = input("Nombre del jugador O (fichas blancas): ") or "Jugador O"
@@ -25,9 +25,8 @@ class Interfaz:
         print("\nEstado inicial del tablero:")
         print(self.tablero.mostrar())
 
-    def sorteo_inicial(self, jugador_x: Player, jugador_o: Player) -> str:
-        """Decide quién comienza; devuelve el nombre del ganador del sorteo."""
-        
+    # Paso 2: sorteo inicial
+    def sorteo_inicial(self, jugador_x: Player, jugador_o: Player) -> Player:
         while True:
             tirada_x = jugador_x.roll_dice()
             tirada_o = jugador_o.roll_dice()
@@ -40,22 +39,27 @@ class Interfaz:
 
             if suma_x > suma_o:
                 print(f"\n{jugador_x.get_name()} comienza la partida.")
-                return jugador_x.get_name()
+                return jugador_x
             elif suma_o > suma_x:
                 print(f"\n{jugador_o.get_name()} comienza la partida.")
-                return jugador_o.get_name()
+                return jugador_o
             else:
                 print("Empate, se repite la tirada...")
+
+    # Paso 3: tirar dados y mostrar movimientos
+    def tirar_dados_y_mostrar(self, jugador: Player):
+        tirada = jugador.roll_dice()
+        movimientos = jugador.movimientos()
+        print(f"{jugador.get_name()} tiró los dados: {tirada} -> movimientos: {movimientos}")
+        return movimientos
 
     def main(self):
         print("=== Backgammon ===")
         self.pedir_nombres()
         self.mostrar_jugadores()
         self.crear_y_mostrar_tablero()
-        self.sorteo_inicial(self.jugador_x, self.jugador_o)
-
-
-
+        primero = self.sorteo_inicial(self.jugador_x, self.jugador_o)
+        self.tirar_dados_y_mostrar(primero)
 
 
 if __name__ == "__main__":
