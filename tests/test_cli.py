@@ -39,6 +39,18 @@ class TestSorteoInicial(unittest.TestCase):
         ganador = Interfaz().sorteo_inicial(x, o)
         self.assertEqual(ganador, "Beto")
 
+    def test_empate_y_luego_gana_x(self):
+        x = Player("Ana", "X")
+        o = Player("Beto", "O")
+
+        # En este caso necesitamos dos tiradas: usamos un iterador
+        tiradas_x = iter([[4, 5], [2, 6]])   # 9 → 8
+        tiradas_o = iter([[3, 6], [4, 1]])   # 9 → 5
+        x.roll_dice = lambda: next(tiradas_x)
+        o.roll_dice = lambda: next(tiradas_o)
+
+        ganador = Interfaz().sorteo_inicial(x, o)
+        self.assertEqual(ganador, "Ana")
 
 if __name__ == "__main__":
     unittest.main()

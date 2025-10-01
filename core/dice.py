@@ -1,24 +1,26 @@
 # dice.py
-
 import random
 
 class Dice:
     def __init__(self):
-        """Inicializa los dados."""
-        self.last_rolls = [None, None]  # Almacena los resultados de los dos dados
+        self.last_rolls = [None, None]
 
     def roll(self):
-        """Lanza dos dados y devuelve los resultados."""
-        self.last_rolls[0] = random.randint(1, 6)
-        self.last_rolls[1] = random.randint(1, 6)
+        self.last_rolls = [random.randint(1, 6), random.randint(1, 6)]
+        return self.last_rolls
+
+    def get_last_rolls(self):
         return self.last_rolls
 
     def is_double(self):
-        """Verifica si ambos dados son dobles (iguales)."""
         return self.last_rolls[0] == self.last_rolls[1]
 
-    def get_last_rolls(self):
-        """Devuelve los últimos resultados de los dos dados."""
-        return self.last_rolls
-    
-
+    def movimientos(self):
+        """
+        Devuelve la lista de movimientos según la última tirada.
+        - Si es doble → 4 movimientos iguales.
+        - Si no → dos movimientos distintos.
+        """
+        if self.is_double():
+            return [self.last_rolls[0]] * 4
+        return self.last_rolls[:]
