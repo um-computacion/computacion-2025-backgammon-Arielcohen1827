@@ -52,5 +52,7 @@ class TestSorteoInicial(unittest.TestCase):
         ganador = Interfaz().sorteo_inicial(x, o)
         self.assertEqual(ganador, "Ana")
 
+
+
 if __name__ == "__main__":
     unittest.main()

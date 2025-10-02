@@ -1,3 +1,4 @@
+# cli.py
 from core.board import Tablero
 from core.player import Player
 
@@ -16,7 +17,7 @@ class Interfaz:
         self.jugador_o = Player(nombre_o, "O")
 
     def mostrar_jugadores(self):
-        print(f"\nJugadores creados:")
+        print("\nJugadores creados:")
         print(f" - {self.jugador_x.get_name()} juega con fichas '{self.jugador_x.get_ficha()}'")
         print(f" - {self.jugador_o.get_name()} juega con fichas '{self.jugador_o.get_ficha()}'")
 
@@ -46,20 +47,55 @@ class Interfaz:
             else:
                 print("Empate, se repite la tirada...")
 
-    # Paso 3: tirar dados y mostrar movimientos
+    # Paso 3: tirar dados y mostrar movimientos (usa Player.movimientos -> Dice.movimientos)
     def tirar_dados_y_mostrar(self, jugador: Player):
         tirada = jugador.roll_dice()
         movimientos = jugador.movimientos()
-        print(f"{jugador.get_name()} tiró los dados: {tirada} -> movimientos: {movimientos}")
+        print(f"\n{jugador.get_name()} tiró los dados: {tirada} -> movimientos: {movimientos}")
         return movimientos
 
+    # Paso 4: pedir y ejecutar un movimiento
+    def pedir_movimiento(self):
+        mov = input("Movimiento (formato origen-destino, ej. 13-11): ").strip()
+        try:
+            origen, destino = map(int, mov.split("-"))
+            return origen, destino
+        except Exception:
+            print("❌ Formato incorrecto.")
+            return None
+
+    def ejecutar_movimiento(self, jugador: Player, origen: int, destino: int) -> bool:
+        ok = self.tablero.mover_ficha(origen, destino)
+        if ok:
+            print(f"✅ Movimiento realizado por {jugador.get_name()}: {origen} → {destino}")
+            return True
+        else:
+            print("❌ Movimiento inválido.")
+            return False
+
+    # Demo principal (pasos 1 a 4)
     def main(self):
         print("=== Backgammon ===")
         self.pedir_nombres()
         self.mostrar_jugadores()
         self.crear_y_mostrar_tablero()
+
+        # Sorteo: quién empieza
         primero = self.sorteo_inicial(self.jugador_x, self.jugador_o)
+
+        # Ese jugador tira y se muestran sus movimientos posibles
         self.tirar_dados_y_mostrar(primero)
+
+        # Un solo movimiento de demostración
+        print("\nTablero actual:")
+        print(self.tablero.mostrar())
+        entrada = self.pedir_movimiento()
+        if entrada:
+            origen, destino = entrada
+            self.ejecutar_movimiento(primero, origen, destino)
+
+        print("\nTablero tras el movimiento:")
+        print(self.tablero.mostrar())
 
 
 if __name__ == "__main__":
