@@ -98,5 +98,6 @@ class Interfaz:
         print(self.tablero.mostrar())
 
 
+
 if __name__ == "__main__":
     Interfaz().main()
