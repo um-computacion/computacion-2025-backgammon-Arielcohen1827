@@ -38,6 +38,23 @@ class TestDados(unittest.TestCase):
         self.dado.last_rolls = [3, 5]
         self.assertEqual(self.dado.movimientos(), [3, 5])
 
+class TestDadosExtras(unittest.TestCase):
+    def setUp(self):
+        self.dado = Dice()
+
+    def test_roll_actualiza_last_rolls(self):
+        """Cada tirada debe actualizar el valor almacenado en last_rolls."""
+        anterior = self.dado.last_rolls[:]
+        nueva = self.dado.roll()
+        self.assertNotEqual(anterior, nueva)
+        self.assertEqual(self.dado.get_last_rolls(), nueva)
+
+    def test_movimientos_despues_de_tirada(self):
+        """movimientos() debe reflejar la tirada actual."""
+        self.dado.last_rolls = [3, 6]
+        self.assertEqual(self.dado.movimientos(), [3, 6])
+
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
