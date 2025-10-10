@@ -93,6 +93,22 @@ class Tablero:
             return False
         return True
 
+    def distancia_legal(self, ficha: str, origen: int, destino: int) -> int | None:
+        """
+        Regla de dirección/distancia:
+        - X avanza hacia números MAYORES (destino > origen)
+        - O avanza hacia números MENORES (destino < origen)
+        Devuelve la distancia positiva a consumir si es legal; si no, None.
+        """
+        if ficha == "X":
+            if destino <= origen:
+                return None
+            return destino - origen
+        else:  # 'O'
+            if destino >= origen:
+                return None
+            return origen - destino
+
     def mover_ficha(self, origen, destino):
         """Mueve una ficha aplicando reglas de backgammon."""
         if origen not in self.tablero or len(self.tablero[origen]) == 0:

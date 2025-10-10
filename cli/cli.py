@@ -72,6 +72,14 @@ class Interfaz:
         else:
             print("❌ Movimiento inválido.")
             return False
+    # Paso 5 
+
+    def _consumir_movimiento(self, movimientos: list[int], distancia: int) -> bool:
+        """Quita una única ocurrencia de 'distancia' de la lista de movimientos."""
+        if distancia in movimientos:
+            movimientos.remove(distancia)
+            return True
+        return False
 
     # Demo principal (pasos 1 a 4)
     def main(self):
