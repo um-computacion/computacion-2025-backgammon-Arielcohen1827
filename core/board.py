@@ -108,6 +108,28 @@ class Tablero:
             if destino >= origen:
                 return None
             return origen - destino
+        
+        
+    def fichas_restantes(self, ficha: str) -> int:
+        """Cuenta cuántas fichas de `ficha` quedan en el tablero (sin incluir bar/off)."""
+        total = 0
+        for p, pila in self.tablero.items():
+            total += sum(1 for x in pila if x == ficha)
+        return total + len(self.bar[ficha])
+
+    def ganador(self):
+        """
+        Devuelve 'X' o 'O' si alguno retiró las 15 fichas (off).
+        Si nadie ganó, devuelve None.
+        """
+        if len(self.off["X"]) == 15:
+            return "X"
+        if len(self.off["O"]) == 15:
+            return "O"
+        # Alternativa equivalente: no quedan fichas ni en tablero ni en barra
+        # if self.fichas_restantes('X') == 0: return 'X'
+        # if self.fichas_restantes('O') == 0: return 'O'
+        return None
 
     def mover_ficha(self, origen, destino):
         """Mueve una ficha aplicando reglas de backgammon."""
