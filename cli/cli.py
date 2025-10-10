@@ -81,7 +81,55 @@ class Interfaz:
             return True
         return False
 
-    # Demo principal (pasos 1 a 4)
+    def jugar_turno(self, jugador: Player):
+        """
+        Ejecuta un turno completo:
+        - Tira dados y muestra movimientos.
+        - Solicita tantos movimientos como indique la tirada (2 o 4 si doble).
+        - Cada movimiento debe respetar la dirección/distancia provista por Tablero.
+        - Se puede saltar el resto con ENTER vacío.
+        """
+        print("\n" + "=" * 40)
+        print(f"👉 Turno de {jugador.get_name()} ({jugador.get_ficha()})")
+        movimientos = self.tirar_dados_y_mostrar(jugador)[:]  # copia para consumir
+
+        while movimientos:
+            print("\nTablero actual:")
+            print(self.tablero.mostrar())
+            print(f"Movimientos disponibles: {movimientos}")
+            entrada = input("Origen-Destino (ENTER para pasar el resto del turno): ").strip()
+            if not entrada:
+                print("⏭️  El jugador decide no usar los movimientos restantes.")
+                break
+
+            try:
+                origen, destino = map(int, entrada.split("-"))
+            except Exception:
+                print("❌ Formato incorrecto. Usa 'origen-destino', ej. 13-11.")
+                continue
+
+            # Distancia según REGLAS DEL TABLERO (no de la CLI)
+            distancia = self.tablero.distancia_legal(jugador.get_ficha(), origen, destino)
+            if distancia is None:
+                print("❌ Dirección inválida para tus fichas.")
+                continue
+
+            # Debe existir esa distancia en los movimientos disponibles
+            if not self._consumir_movimiento(movimientos, distancia):
+                print(f"❌ No tienes un movimiento de {distancia} disponible.")
+                continue
+
+            # Intentar mover en el tablero (bloqueos/capturas se validan en Tablero)
+            if not self.ejecutar_movimiento(jugador, origen, destino):
+                # Devolvemos la distancia si el movimiento no se pudo concretar
+                movimientos.append(distancia)
+                movimientos.sort()
+                continue
+
+        print("\nFin del turno.")
+        print(self.tablero.mostrar())
+
+    # Demo principal (pasos 1 a 4) + turnos
     def main(self):
         print("=== Backgammon ===")
         self.pedir_nombres()
@@ -89,21 +137,20 @@ class Interfaz:
         self.crear_y_mostrar_tablero()
 
         # Sorteo: quién empieza
-        primero = self.sorteo_inicial(self.jugador_x, self.jugador_o)
+        actual = self.sorteo_inicial(self.jugador_x, self.jugador_o)
+        rival = self.jugador_o if actual is self.jugador_x else self.jugador_x
 
-        # Ese jugador tira y se muestran sus movimientos posibles
-        self.tirar_dados_y_mostrar(primero)
+        # Bucle de turnos
+        while True:
+            self.jugar_turno(actual)
+            # Alternar
+            actual, rival = rival, actual
 
-        # Un solo movimiento de demostración
-        print("\nTablero actual:")
-        print(self.tablero.mostrar())
-        entrada = self.pedir_movimiento()
-        if entrada:
-            origen, destino = entrada
-            self.ejecutar_movimiento(primero, origen, destino)
-
-        print("\nTablero tras el movimiento:")
-        print(self.tablero.mostrar())
+            # Opción simple para salir
+            seguir = input("\n¿Continuar? (ENTER sí / 'q' para salir): ").strip().lower()
+            if seguir == "q":
+                print("👋 Fin de la partida (salida manual).")
+                break
 
 
 
