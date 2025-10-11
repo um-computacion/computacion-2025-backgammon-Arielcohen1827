@@ -143,6 +143,14 @@ class Interfaz:
         # Bucle de turnos
         while True:
             self.jugar_turno(actual)
+            
+            # ¿Hay ganador?
+            ganador = self.tablero.ganador()
+            if ganador:
+                nombre = self.jugador_x.get_name() if ganador == "X" else self.jugador_o.get_name()
+                print(f"\n🏆 ¡{nombre} ha ganado la partida!")
+                break
+            
             # Alternar
             actual, rival = rival, actual
 

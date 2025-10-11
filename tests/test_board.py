@@ -241,6 +241,32 @@ class TestBearingOff(unittest.TestCase):
         self.assertEqual(len(self.juego.off["O"]), 3)
         self.assertEqual(len(self.juego.tablero[1]), 12)
 
+class TestFichasRestantes(unittest.TestCase):
+    def setUp(self):
+        self.t = Tablero()
+        # Partimos de un estado controlado
+        self.t.tablero.clear()
+        self.t.bar = {"X": [], "O": []}
+        self.t.off = {"X": [], "O": []}
+
+    def test_cuenta_en_tablero(self):
+        # 3 X en punto 6, 2 O en punto 12
+        self.t.tablero[6] = ["X", "X", "X"]
+        self.t.tablero[12] = ["O", "O"]
+        self.assertEqual(self.t.fichas_restantes("X"), 3)
+        self.assertEqual(self.t.fichas_restantes("O"), 2)
+
+    def test_incluye_barra_pero_no_off(self):
+        # 2 X en tablero + 1 X en barra + 5 X en off
+        self.t.tablero[5] = ["X", "X"]
+        self.t.bar["X"] = ["X"]
+        self.t.off["X"] = ["X"] * 5
+        # 1 O en tablero + 2 O en barra
+        self.t.tablero[10] = ["O"]
+        self.t.bar["O"] = ["O", "O"]
+        self.assertEqual(self.t.fichas_restantes("X"), 3)  # 2 tablero + 1 barra
+        self.assertEqual(self.t.fichas_restantes("O"), 3)  # 1 tablero + 2 barra
+
 
 
 if __name__ == "__main__":
