@@ -267,7 +267,37 @@ class TestFichasRestantes(unittest.TestCase):
         self.assertEqual(self.t.fichas_restantes("X"), 3)  # 2 tablero + 1 barra
         self.assertEqual(self.t.fichas_restantes("O"), 3)  # 1 tablero + 2 barra
 
+class TestGanador(unittest.TestCase):
+    def setUp(self):
+        self.t = Tablero()
+        # Estado controlado
+        self.t.tablero.clear()
+        self.t.bar = {"X": [], "O": []}
+        self.t.off = {"X": [], "O": []}
 
+    def test_sin_ganador(self):
+        # Aún con fichas en tablero y/o barra, off < 15
+        self.t.tablero[24] = ["X"] * 10
+        self.t.bar["X"] = ["X"] * 2
+        self.t.off["X"] = ["X"] * 3  # total 15 repartidas, pero off != 15 → no gana
+        self.assertIsNone(self.t.ganador())
+
+    def test_gana_x_cuando_off_15(self):
+        self.t.off["X"] = ["X"] * 15
+        # Aunque quede algo en tablero (no debería pasar en juego real), gana por definición de la función
+        self.t.tablero[1] = ["X"]
+        self.assertEqual(self.t.ganador(), "X")
+
+    def test_gana_o_cuando_off_15(self):
+        self.t.off["O"] = ["O"] * 15
+        self.t.bar["O"] = []  # irrelevante
+        self.assertEqual(self.t.ganador(), "O")
+
+    def test_prioridad_x_sobre_o_si_ambos_15(self):
+        # Caso límite: ambos tienen 15 off. Según implementación, retorna X primero.
+        self.t.off["X"] = ["X"] * 15
+        self.t.off["O"] = ["O"] * 15
+        self.assertEqual(self.t.ganador(), "X")
 
 if __name__ == "__main__":
     unittest.main()
