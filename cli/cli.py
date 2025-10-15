@@ -1,6 +1,9 @@
 # cli.py
 from core.board import Tablero
 from core.player import Player
+import copy
+import io
+import contextlib
 
 
 class Interfaz:
@@ -128,6 +131,9 @@ class Interfaz:
 
         print("\nFin del turno.")
         print(self.tablero.mostrar())
+        input("\nPresioná ENTER para pasar el turno al siguiente jugador...")
+
+    
 
     # Demo principal (pasos 1 a 4) + turnos
     def main(self):

@@ -190,4 +190,5 @@ class Tablero:
         self.tablero.setdefault(destino, []).append(ficha)
         return True
 
+    
 
