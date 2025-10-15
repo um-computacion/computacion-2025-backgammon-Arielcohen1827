@@ -66,6 +66,11 @@ class Tablero:
                 fichas = self.tablero.get(punto, [])
                 linea += self.celda(fichas[fila-1] if len(fichas) >= fila else " ")
             output.append(linea)
+        # 🔹 Mostrar barra al final
+        barra_o = self.tablero.get(0, []) + self.bar["O"]
+        barra_x = self.tablero.get(25, []) + self.bar["X"]
+        output.append("\nBarra O (0): " + str(barra_o))
+        output.append("Barra X (25): " + str(barra_x))
 
         return "\n".join(output)
 
