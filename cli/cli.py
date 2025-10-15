@@ -83,11 +83,11 @@ class Interfaz:
             movimientos.remove(distancia)
             return True
         return False
-
     def jugar_turno(self, jugador: Player):
         """
-        Turno con confirmación:
+        Turno con PREVIEW + confirmación:
         - Calcula distancia legal.
+        - Muestra una vista previa del tablero si el movimiento es posible.
         - Pide confirmación; solo entonces consume el dado y mueve.
         - ENTER pasa el resto del turno.
         """
@@ -117,7 +117,22 @@ class Interfaz:
                 print("❌ Dirección inválida para tus fichas.")
                 continue
 
-            # Confirmación (SIN preview por ahora)
+            # Simular en una COPIA del tablero, silenciando prints internos
+            tablero_preview = copy.deepcopy(self.tablero)
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                ok_preview = tablero_preview.mover_ficha(origen, destino)
+
+            if not ok_preview:
+                # Movimiento no es posible (bloqueos, barra, bearing off inválido, etc.)
+                print("❌ Movimiento inválido (según reglas).")
+                continue
+
+            # Mostrar cómo quedaría
+            print("\n🧪 Vista previa del tablero si confirmás este movimiento:")
+            print(tablero_preview.mostrar())
+
+            # Confirmación
             confirmar = input(f"¿Confirmás mover de {origen} a {destino}? (s/n): ").strip().lower()
             if confirmar not in ("s", "si", "y", "yes"):
                 print("⏪ Movimiento cancelado por el jugador.")
@@ -128,15 +143,15 @@ class Interfaz:
                 print(f"⚠️ Ya no tenés un movimiento de {distancia} disponible.")
                 continue
 
-            # Ejecutar de verdad
+            # Ejecutar de verdad en el tablero real
             if not self.ejecutar_movimiento(jugador, origen, destino):
-                # Si falla por reglas (bloqueos, barra, etc.), devolver la distancia
                 movimientos.append(distancia)
                 movimientos.sort()
                 continue
 
         print("\nFin del turno.")
         print(self.tablero.mostrar())
+
 
     
 
