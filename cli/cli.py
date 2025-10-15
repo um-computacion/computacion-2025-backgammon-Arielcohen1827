@@ -86,11 +86,10 @@ class Interfaz:
 
     def jugar_turno(self, jugador: Player):
         """
-        Ejecuta un turno completo:
-        - Tira dados y muestra movimientos.
-        - Solicita tantos movimientos como indique la tirada (2 o 4 si doble).
-        - Cada movimiento debe respetar la dirección/distancia provista por Tablero.
-        - Se puede saltar el resto con ENTER vacío.
+        Turno con confirmación:
+        - Calcula distancia legal.
+        - Pide confirmación; solo entonces consume el dado y mueve.
+        - ENTER pasa el resto del turno.
         """
         print("\n" + "=" * 40)
         print(f"👉 Turno de {jugador.get_name()} ({jugador.get_ficha()})")
@@ -105,33 +104,39 @@ class Interfaz:
                 print("⏭️  El jugador decide no usar los movimientos restantes.")
                 break
 
+            # Parseo
             try:
                 origen, destino = map(int, entrada.split("-"))
             except Exception:
                 print("❌ Formato incorrecto. Usa 'origen-destino', ej. 13-11.")
                 continue
 
-            # Distancia según REGLAS DEL TABLERO (no de la CLI)
+            # Distancia según reglas del tablero (no consumimos aún)
             distancia = self.tablero.distancia_legal(jugador.get_ficha(), origen, destino)
             if distancia is None:
                 print("❌ Dirección inválida para tus fichas.")
                 continue
 
-            # Debe existir esa distancia en los movimientos disponibles
-            if not self._consumir_movimiento(movimientos, distancia):
-                print(f"❌ No tienes un movimiento de {distancia} disponible.")
+            # Confirmación (SIN preview por ahora)
+            confirmar = input(f"¿Confirmás mover de {origen} a {destino}? (s/n): ").strip().lower()
+            if confirmar not in ("s", "si", "y", "yes"):
+                print("⏪ Movimiento cancelado por el jugador.")
                 continue
 
-            # Intentar mover en el tablero (bloqueos/capturas se validan en Tablero)
+            # Consumir la distancia ahora que confirmaste
+            if not self._consumir_movimiento(movimientos, distancia):
+                print(f"⚠️ Ya no tenés un movimiento de {distancia} disponible.")
+                continue
+
+            # Ejecutar de verdad
             if not self.ejecutar_movimiento(jugador, origen, destino):
-                # Devolvemos la distancia si el movimiento no se pudo concretar
+                # Si falla por reglas (bloqueos, barra, etc.), devolver la distancia
                 movimientos.append(distancia)
                 movimientos.sort()
                 continue
 
         print("\nFin del turno.")
         print(self.tablero.mostrar())
-        input("\nPresioná ENTER para pasar el turno al siguiente jugador...")
 
     
 
