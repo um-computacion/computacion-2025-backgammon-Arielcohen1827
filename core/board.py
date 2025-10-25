@@ -9,6 +9,8 @@ class Tablero:
             12: ["X"] * 5,
             17: ["X"] * 3,
             19: ["X"] * 5,
+            0:  [],   # barra de X
+            25: [],   # barra de O
         }
         self.max_altura = 8
         # 🔹 Agregamos la barra para fichas comidas
@@ -67,10 +69,10 @@ class Tablero:
                 linea += self.celda(fichas[fila-1] if len(fichas) >= fila else " ")
             output.append(linea)
         # 🔹 Mostrar barra al final
-        barra_o = self.tablero.get(0, []) + self.bar["O"]
-        barra_x = self.tablero.get(25, []) + self.bar["X"]
-        output.append("\nBarra O (0): " + str(barra_o))
-        output.append("Barra X (25): " + str(barra_x))
+        barra_o = self.tablero.get(25, []) + self.bar["O"]
+        barra_x = self.tablero.get(0, []) + self.bar["X"]
+        output.append("\nBarra O (25): " + str(barra_o))
+        output.append("Barra X (0): " + str(barra_x))
 
         return "\n".join(output)
 
@@ -135,9 +137,71 @@ class Tablero:
         # if self.fichas_restantes('X') == 0: return 'X'
         # if self.fichas_restantes('O') == 0: return 'O'
         return None
+    
+    
 
     def mover_ficha(self, origen, destino):
+        
         """Mueve una ficha aplicando reglas de backgammon."""
+        # --- Reingreso desde barra (simple) ---
+        if origen == 0:   # barra de X
+                # Reingreso desde barra: usa self.bar["X"] como fuente de verdad
+                if not self.bar["X"] and not self.tablero[0]:
+                    print("No hay fichas 'X' en la barra (0).")
+                    return False
+
+                fichas_destino = self.tablero.get(destino, [])
+
+                # Bloqueo: no puede entrar si hay 2+ del rival
+                if not self.movimiento_valido("X", fichas_destino):
+                    print(f"❌ No puedes reingresar a {destino}: bloqueado por el rival.")
+                    return False
+
+                # Comer si hay 1 rival
+                if len(fichas_destino) == 1 and fichas_destino[0] == "O":
+                    fichas_destino.pop()
+                    self.bar["O"].append("O")
+
+                # Sacar de la barra (preferimos self.bar sobre tablero[0] por compatibilidad)
+                if self.bar["X"]:
+                    self.bar["X"].pop()
+                else:
+                    self.tablero[0].pop()
+
+                self.tablero.setdefault(destino, []).append("X")
+                print(f"✅ Ficha 'X' reingresó desde 0 al punto {destino}.")
+                return True
+
+        if origen == 25:  # barra de O
+            # Reingreso desde barra: usa self.bar["O"]
+            if not self.bar["O"] and not self.tablero[25]:
+                print("No hay fichas 'O' en la barra (25).")
+                return False
+
+            fichas_destino = self.tablero.get(destino, [])
+
+            # Bloqueo: no puede entrar si hay 2+ del rival
+            if not self.movimiento_valido("O", fichas_destino):
+                print(f"❌ No puedes reingresar a {destino}: bloqueado por el rival.")
+                return False
+
+            # Comer si hay 1 rival
+            if len(fichas_destino) == 1 and fichas_destino[0] == "X":
+                fichas_destino.pop()
+                self.bar["X"].append("X")
+
+            # Sacar de la barra (preferimos self.bar sobre tablero[25] por compatibilidad)
+            if self.bar["O"]:
+                self.bar["O"].pop()
+            else:
+                self.tablero[25].pop()
+
+            self.tablero.setdefault(destino, []).append("O")
+            print(f"✅ Ficha 'O' reingresó desde 25 al punto {destino}.")
+            return True
+        # --- fin reingreso desde barra ---
+        
+        
         if origen not in self.tablero or len(self.tablero[origen]) == 0:
             print(f"No hay fichas en el punto {origen}")
             return False
