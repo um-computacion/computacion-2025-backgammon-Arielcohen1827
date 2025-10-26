@@ -310,7 +310,51 @@ class TestGanador(unittest.TestCase):
         self.t.off["X"] = ["X"] * 15
         self.t.off["O"] = ["O"] * 15
         self.assertEqual(self.t.ganador(), "X")
+class TestReingresoDesdeBarraX(unittest.TestCase):
+    def setUp(self):
+        self.t = Tablero()
+        # Estado limpio y controlado para estos tests
+        self.t.bar["X"].clear()
+        self.t.bar["O"].clear()
+        # Vaciar destinos que vamos a usar
+        for p in [5, 6, 7, 8]:
+            self.t.tablero[p] = []
 
+    def test_no_puede_entrar_si_bloqueado_por_2_o_mas_O(self):
+        # Barra X con 1 ficha
+        self.t.bar["X"].append("X")
+        # Destino con 2 O => bloqueado
+        self.t.tablero[6] = ["O", "O"]
+        ok = self.t.mover_ficha(0, 6)
+        self.assertFalse(ok)
+        self.assertIn("X", self.t.bar["X"])             # no salió de la barra
+        self.assertEqual(self.t.tablero[6], ["O","O"])  # destino intacto
+
+    def test_entrar_en_destino_libre(self):
+        self.t.bar["X"].append("X")
+        self.t.tablero[6] = []                          # libre
+        ok = self.t.mover_ficha(0, 6)
+        self.assertTrue(ok)
+        self.assertEqual(self.t.bar["X"], [])           # salió de barra
+        self.assertEqual(self.t.tablero[6], ["X"])      # entró 1 X
+
+    def test_entrar_en_destino_propio(self):
+        self.t.bar["X"].append("X")
+        self.t.tablero[6] = ["X","X"]                   # propio
+        ok = self.t.mover_ficha(0, 6)
+        self.assertTrue(ok)
+        self.assertEqual(self.t.bar["X"], [])
+        self.assertEqual(self.t.tablero[6], ["X","X","X"])
+
+    def test_comer_si_hay_una_sola_O(self):
+        self.t.bar["X"].append("X")
+        self.t.tablero[6] = ["O"]                       # un blot rival
+        ok = self.t.mover_ficha(0, 6)
+        self.assertTrue(ok)
+        # La O fue enviada a su barra
+        self.assertEqual(self.t.bar["O"], ["O"])
+        # Quedó la X en el punto
+        self.assertEqual(self.t.tablero[6], ["X"])
 
 
 
