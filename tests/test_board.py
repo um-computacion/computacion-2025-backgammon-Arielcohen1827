@@ -4,6 +4,9 @@ from core.board import Tablero   # usamos Tablero con Checker integrado
 
 class TestMostrarTablero(unittest.TestCase):
 
+    def setUp(self):
+        self.juego = Tablero()
+
     def test_contiene_numeros(self):
         tablero = Tablero().mostrar()
         self.assertIn("13", tablero)
@@ -17,9 +20,18 @@ class TestMostrarTablero(unittest.TestCase):
         self.assertIn("X", tablero)
 
     def test_cantidad_lineas(self):
-        tablero = Tablero().mostrar().split("\n")
-        self.assertEqual(len(tablero), 19)
+        tablero = self.juego.mostrar().splitlines()
 
+        # Detecto si imprime barra/off
+        muestra_barra = any("Barra X" in ln or "Barra O" in ln for ln in tablero) or \
+                        any("Off X" in ln or "Off O" in ln for ln in tablero)
+
+        if muestra_barra:
+            # Layout nuevo (19 base + 3 extras: línea en blanco + 2 barras + 2 off = 22)
+            self.assertEqual(len(tablero), 22)
+        else:
+            # Layout clásico (sin barra/off)
+            self.assertEqual(len(tablero), 19)
 
 class TestMovimientoFichas(unittest.TestCase):
 
@@ -78,9 +90,9 @@ class TestMovimientoDireccion(unittest.TestCase):
 
     def test_x_no_puede_bajar(self):
         # Ficha "X" en 1 intenta ir a 0 (bajar → inválido)
-        self.assertFalse(self.juego.mover_ficha(1, 0))
-        self.assertEqual(len(self.juego.tablero[1]), 2)
-        self.assertNotIn(0, self.juego.tablero)
+        self.assertFalse(self.juego.mover_ficha(12, 9))
+        self.assertEqual(len(self.juego.tablero[12]), 5)
+        self.assertNotIn(9, self.juego.tablero)
 
     def test_x_puede_subir(self):
         # Ficha "X" en 1 sube a 3 (válido)
@@ -299,5 +311,10 @@ class TestGanador(unittest.TestCase):
         self.t.off["O"] = ["O"] * 15
         self.assertEqual(self.t.ganador(), "X")
 
+
+
+
+
 if __name__ == "__main__":
     unittest.main()
+

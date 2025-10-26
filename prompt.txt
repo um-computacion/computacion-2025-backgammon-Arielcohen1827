@@ -55,3 +55,4 @@ prompt 1 ( quiero que en board me revises el codigo y me digas si funciona el vo
             print(f"✅ Ficha 'O' reingresó desde 25 al punto {destino}.")
             return True
 
+prompt (hace test de X de reingreso de barra)
