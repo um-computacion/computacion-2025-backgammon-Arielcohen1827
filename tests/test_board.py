@@ -356,6 +356,45 @@ class TestReingresoDesdeBarraX(unittest.TestCase):
         # Quedó la X en el punto
         self.assertEqual(self.t.tablero[6], ["X"])
 
+class TestReingresoDesdeBarraO(unittest.TestCase):
+    def setUp(self):
+        self.t = Tablero()
+        self.t.bar["X"].clear()
+        self.t.bar["O"].clear()
+        for p in [18, 19, 20, 21]:
+            self.t.tablero[p] = []
+
+    def test_no_puede_entrar_si_bloqueado_por_2_o_mas_X(self):
+        self.t.bar["O"].append("O")
+        self.t.tablero[19] = ["X", "X"]
+        ok = self.t.mover_ficha(25, 19)
+        self.assertFalse(ok)
+        self.assertIn("O", self.t.bar["O"])
+        self.assertEqual(self.t.tablero[19], ["X", "X"])
+
+    def test_entrar_en_destino_libre(self):
+        self.t.bar["O"].append("O")
+        self.t.tablero[19] = []
+        ok = self.t.mover_ficha(25, 19)
+        self.assertTrue(ok)
+        self.assertEqual(self.t.bar["O"], [])
+        self.assertEqual(self.t.tablero[19], ["O"])
+
+    def test_entrar_en_destino_propio(self):
+        self.t.bar["O"].append("O")
+        self.t.tablero[19] = ["O", "O"]
+        ok = self.t.mover_ficha(25, 19)
+        self.assertTrue(ok)
+        self.assertEqual(self.t.bar["O"], [])
+        self.assertEqual(self.t.tablero[19], ["O", "O", "O"])
+
+    def test_comer_si_hay_una_sola_X(self):
+        self.t.bar["O"].append("O")
+        self.t.tablero[19] = ["X"]
+        ok = self.t.mover_ficha(25, 19)
+        self.assertTrue(ok)
+        self.assertEqual(self.t.bar["X"], ["X"])
+        self.assertEqual(self.t.tablero[19], ["O"])
 
 
 
