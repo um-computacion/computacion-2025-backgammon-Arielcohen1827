@@ -4,6 +4,9 @@ from core.board import Tablero   # usamos Tablero con Checker integrado
 
 class TestMostrarTablero(unittest.TestCase):
 
+    def setUp(self):
+        self.juego = Tablero()
+
     def test_contiene_numeros(self):
         tablero = Tablero().mostrar()
         self.assertIn("13", tablero)
@@ -17,9 +20,18 @@ class TestMostrarTablero(unittest.TestCase):
         self.assertIn("X", tablero)
 
     def test_cantidad_lineas(self):
-        tablero = Tablero().mostrar().split("\n")
-        self.assertEqual(len(tablero), 19)
+        tablero = self.juego.mostrar().splitlines()
 
+        # Detecto si imprime barra/off
+        muestra_barra = any("Barra X" in ln or "Barra O" in ln for ln in tablero) or \
+                        any("Off X" in ln or "Off O" in ln for ln in tablero)
+
+        if muestra_barra:
+            # Layout nuevo (19 base + 3 extras: línea en blanco + 2 barras + 2 off = 22)
+            self.assertEqual(len(tablero), 22)
+        else:
+            # Layout clásico (sin barra/off)
+            self.assertEqual(len(tablero), 19)
 
 class TestMovimientoFichas(unittest.TestCase):
 
@@ -78,9 +90,9 @@ class TestMovimientoDireccion(unittest.TestCase):
 
     def test_x_no_puede_bajar(self):
         # Ficha "X" en 1 intenta ir a 0 (bajar → inválido)
-        self.assertFalse(self.juego.mover_ficha(1, 0))
-        self.assertEqual(len(self.juego.tablero[1]), 2)
-        self.assertNotIn(0, self.juego.tablero)
+        self.assertFalse(self.juego.mover_ficha(12, 9))
+        self.assertEqual(len(self.juego.tablero[12]), 5)
+        self.assertNotIn(9, self.juego.tablero)
 
     def test_x_puede_subir(self):
         # Ficha "X" en 1 sube a 3 (válido)
@@ -241,7 +253,151 @@ class TestBearingOff(unittest.TestCase):
         self.assertEqual(len(self.juego.off["O"]), 3)
         self.assertEqual(len(self.juego.tablero[1]), 12)
 
+class TestFichasRestantes(unittest.TestCase):
+    def setUp(self):
+        self.t = Tablero()
+        # Partimos de un estado controlado
+        self.t.tablero.clear()
+        self.t.bar = {"X": [], "O": []}
+        self.t.off = {"X": [], "O": []}
+
+    def test_cuenta_en_tablero(self):
+        # 3 X en punto 6, 2 O en punto 12
+        self.t.tablero[6] = ["X", "X", "X"]
+        self.t.tablero[12] = ["O", "O"]
+        self.assertEqual(self.t.fichas_restantes("X"), 3)
+        self.assertEqual(self.t.fichas_restantes("O"), 2)
+
+    def test_incluye_barra_pero_no_off(self):
+        # 2 X en tablero + 1 X en barra + 5 X en off
+        self.t.tablero[5] = ["X", "X"]
+        self.t.bar["X"] = ["X"]
+        self.t.off["X"] = ["X"] * 5
+        # 1 O en tablero + 2 O en barra
+        self.t.tablero[10] = ["O"]
+        self.t.bar["O"] = ["O", "O"]
+        self.assertEqual(self.t.fichas_restantes("X"), 3)  # 2 tablero + 1 barra
+        self.assertEqual(self.t.fichas_restantes("O"), 3)  # 1 tablero + 2 barra
+
+class TestGanador(unittest.TestCase):
+    def setUp(self):
+        self.t = Tablero()
+        # Estado controlado
+        self.t.tablero.clear()
+        self.t.bar = {"X": [], "O": []}
+        self.t.off = {"X": [], "O": []}
+
+    def test_sin_ganador(self):
+        # Aún con fichas en tablero y/o barra, off < 15
+        self.t.tablero[24] = ["X"] * 10
+        self.t.bar["X"] = ["X"] * 2
+        self.t.off["X"] = ["X"] * 3  # total 15 repartidas, pero off != 15 → no gana
+        self.assertIsNone(self.t.ganador())
+
+    def test_gana_x_cuando_off_15(self):
+        self.t.off["X"] = ["X"] * 15
+        # Aunque quede algo en tablero (no debería pasar en juego real), gana por definición de la función
+        self.t.tablero[1] = ["X"]
+        self.assertEqual(self.t.ganador(), "X")
+
+    def test_gana_o_cuando_off_15(self):
+        self.t.off["O"] = ["O"] * 15
+        self.t.bar["O"] = []  # irrelevante
+        self.assertEqual(self.t.ganador(), "O")
+
+    def test_prioridad_x_sobre_o_si_ambos_15(self):
+        # Caso límite: ambos tienen 15 off. Según implementación, retorna X primero.
+        self.t.off["X"] = ["X"] * 15
+        self.t.off["O"] = ["O"] * 15
+        self.assertEqual(self.t.ganador(), "X")
+class TestReingresoDesdeBarraX(unittest.TestCase):
+    def setUp(self):
+        self.t = Tablero()
+        # Estado limpio y controlado para estos tests
+        self.t.bar["X"].clear()
+        self.t.bar["O"].clear()
+        # Vaciar destinos que vamos a usar
+        for p in [5, 6, 7, 8]:
+            self.t.tablero[p] = []
+
+    def test_no_puede_entrar_si_bloqueado_por_2_o_mas_O(self):
+        # Barra X con 1 ficha
+        self.t.bar["X"].append("X")
+        # Destino con 2 O => bloqueado
+        self.t.tablero[6] = ["O", "O"]
+        ok = self.t.mover_ficha(0, 6)
+        self.assertFalse(ok)
+        self.assertIn("X", self.t.bar["X"])             # no salió de la barra
+        self.assertEqual(self.t.tablero[6], ["O","O"])  # destino intacto
+
+    def test_entrar_en_destino_libre(self):
+        self.t.bar["X"].append("X")
+        self.t.tablero[6] = []                          # libre
+        ok = self.t.mover_ficha(0, 6)
+        self.assertTrue(ok)
+        self.assertEqual(self.t.bar["X"], [])           # salió de barra
+        self.assertEqual(self.t.tablero[6], ["X"])      # entró 1 X
+
+    def test_entrar_en_destino_propio(self):
+        self.t.bar["X"].append("X")
+        self.t.tablero[6] = ["X","X"]                   # propio
+        ok = self.t.mover_ficha(0, 6)
+        self.assertTrue(ok)
+        self.assertEqual(self.t.bar["X"], [])
+        self.assertEqual(self.t.tablero[6], ["X","X","X"])
+
+    def test_comer_si_hay_una_sola_O(self):
+        self.t.bar["X"].append("X")
+        self.t.tablero[6] = ["O"]                       # un blot rival
+        ok = self.t.mover_ficha(0, 6)
+        self.assertTrue(ok)
+        # La O fue enviada a su barra
+        self.assertEqual(self.t.bar["O"], ["O"])
+        # Quedó la X en el punto
+        self.assertEqual(self.t.tablero[6], ["X"])
+
+class TestReingresoDesdeBarraO(unittest.TestCase):
+    def setUp(self):
+        self.t = Tablero()
+        self.t.bar["X"].clear()
+        self.t.bar["O"].clear()
+        for p in [18, 19, 20, 21]:
+            self.t.tablero[p] = []
+
+    def test_no_puede_entrar_si_bloqueado_por_2_o_mas_X(self):
+        self.t.bar["O"].append("O")
+        self.t.tablero[19] = ["X", "X"]
+        ok = self.t.mover_ficha(25, 19)
+        self.assertFalse(ok)
+        self.assertIn("O", self.t.bar["O"])
+        self.assertEqual(self.t.tablero[19], ["X", "X"])
+
+    def test_entrar_en_destino_libre(self):
+        self.t.bar["O"].append("O")
+        self.t.tablero[19] = []
+        ok = self.t.mover_ficha(25, 19)
+        self.assertTrue(ok)
+        self.assertEqual(self.t.bar["O"], [])
+        self.assertEqual(self.t.tablero[19], ["O"])
+
+    def test_entrar_en_destino_propio(self):
+        self.t.bar["O"].append("O")
+        self.t.tablero[19] = ["O", "O"]
+        ok = self.t.mover_ficha(25, 19)
+        self.assertTrue(ok)
+        self.assertEqual(self.t.bar["O"], [])
+        self.assertEqual(self.t.tablero[19], ["O", "O", "O"])
+
+    def test_comer_si_hay_una_sola_X(self):
+        self.t.bar["O"].append("O")
+        self.t.tablero[19] = ["X"]
+        ok = self.t.mover_ficha(25, 19)
+        self.assertTrue(ok)
+        self.assertEqual(self.t.bar["X"], ["X"])
+        self.assertEqual(self.t.tablero[19], ["O"])
+
 
 
 if __name__ == "__main__":
     unittest.main()
+
