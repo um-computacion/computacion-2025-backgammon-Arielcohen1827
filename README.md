@@ -61,7 +61,7 @@ backgammon/
 
 2. Instalar dependencias:
    ```
-   pip install -r requirements.txt
+   pip install -r requiriments.txt
    ```
 
 3. Verificar instalación:
